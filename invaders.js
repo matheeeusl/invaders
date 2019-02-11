@@ -28,6 +28,19 @@ function preload() {
 
 function create() {
     this.add.image(512, 384, "starfield");
+
+    for (let index = 0; index < 4; index++) {
+        var distanciaX = 32;
+        var distanciaY = 100 + (index * 40);
+        var distanciaEntreInimigos = 40;
+        var quantidadeColuna = 13;
+        var posicaoMapaX = 150;
+
+        var invader = this.add.group({ key: 'enemy', frame: 0, repeat: quantidadeColuna, setXY: { x: distanciaX, y: distanciaY, stepX: distanciaEntreInimigos } });
+
+        Phaser.Actions.IncX(invader.getChildren(), posicaoMapaX);
+    }
+
 }
 
 function update() {
