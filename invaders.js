@@ -1,7 +1,14 @@
 const config = {
     type: Phaser.AUTO,
     width: 1024,
-    height: 768,
+    height: 700,
+    physics: {
+        default: 'arcade',
+        arcade: {
+            gravity: { y: 0 },
+            debug: false
+        }
+    },
     scene: {
         preload: preload,
         create: create,
@@ -10,7 +17,13 @@ const config = {
 };
 
 const game = new Phaser.Game(config);
-let enemies;
+let currentPlayer;
+let bulletGroup;
+let invadersGroup;
+let GameEnemies;
+let cursors;
+let GamePlayer;
+let GameBullet;
 
 function preload() {
     this.load.image('bullet', 'assets/invaders/bullet.png');
@@ -28,11 +41,44 @@ function preload() {
 }
 
 function create() {
-    enemies = new Enemies(this);
+    cursors = this.input.keyboard.createCursorKeys();
+    GameEnemies = new Enemies(this);
+    GamePlayer = new Player(this);
+    GameBullet = new Bullet(this);
+    bulletGroup = this.add.group();
+    invadersGroup = this.add.group();
+
     this.add.image(512, 384, "starfield");
-    enemies.addEnemies(4, 13);
+    GameEnemies.addEnemies(4, 13);
+    GamePlayer.addPlayer();
+
+    this.input.keyboard.on('keydown_SPACE', () => {
+        GameBullet.shootBullet();
+    });
 }
 
 function update() {
+    let speed = 300;
+
+    if (!currentPlayer || !currentPlayer.body) return;
+
+    if (cursors.left.isDown) {
+        currentPlayer.setVelocityX(-(speed));
+    }
+    if (cursors.right.isDown) {
+        currentPlayer.setVelocityX(speed);
+    }
+    if (cursors.up.isDown) {
+        currentPlayer.setVelocityY(-(speed));
+    }
+    if (cursors.down.isDown) {
+        currentPlayer.setVelocityY(speed);
+    }
+    if (!cursors.left.isDown && !cursors.right.isDown) {
+        currentPlayer.setVelocityX(0);
+    }
+    if (!cursors.up.isDown && !cursors.down.isDown) {
+        currentPlayer.setVelocityY(0);
+    }
 
 }

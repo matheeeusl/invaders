@@ -5,15 +5,22 @@ class Enemies {
     }
 
     addEnemies(quantidadeLinhas, quantidadeColunas) {
-        for (let index = 0; index < quantidadeLinhas; index++) {
-            const distanciaX = 32;
-            const distanciaY = 100 + (index * 40);
+        let distanciaX = 300;
+        let distanciaY = 0;
+        for (let index = 0; index < quantidadeLinhas * quantidadeColunas; index++) {
             const distanciaEntreInimigos = 40;
             const posicaoMapaX = 200;
 
-            const invader = this.invaders.add.group({ key: 'enemy', frame: 0, repeat: quantidadeColunas, setXY: { x: distanciaX, y: distanciaY, stepX: distanciaEntreInimigos } });
+            if (index % quantidadeColunas === 0) {
+                distanciaY = 100 + (index * 3);
+                distanciaX = 300;
+            }
 
-            Phaser.Actions.IncX(invader.getChildren(), posicaoMapaX);
+            const invader = this.invaders.physics.add.sprite(distanciaX, distanciaY, "enemy");
+
+            distanciaX += 32;
+
+            invadersGroup.add(invader);
         }
     }
 
