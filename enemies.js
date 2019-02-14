@@ -24,7 +24,7 @@ class Enemies {
     }
 
     attackPlayer() {
-
+        console.log("Test");
     }
 
 }
