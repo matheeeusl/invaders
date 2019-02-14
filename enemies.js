@@ -8,20 +8,23 @@ class Enemies {
         let distanciaX = 300;
         let distanciaY = 0;
         for (let index = 0; index < quantidadeLinhas * quantidadeColunas; index++) {
-            const distanciaEntreInimigos = 40;
-            const posicaoMapaX = 200;
 
             if (index % quantidadeColunas === 0) {
-                distanciaY = 100 + (index * 3);
+                distanciaY = (index * 3);
                 distanciaX = 300;
             }
 
-            const invader = this.invaders.physics.add.sprite(distanciaX, distanciaY, "enemy");
+            const invader = invadersGroup.create(distanciaX, distanciaY, "enemy");
+            invader.setVelocityY(100);
+            invader.setBounce(1);
+            invader.setCollideWorldBounds(true);
 
             distanciaX += 32;
-
-            invadersGroup.add(invader);
         }
+    }
+
+    attackPlayer() {
+
     }
 
 }

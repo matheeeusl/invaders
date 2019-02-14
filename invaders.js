@@ -24,11 +24,16 @@ let GameEnemies;
 let cursors;
 let GamePlayer;
 let GameBullet;
+let bulletTime = 0;
+let spaceBar;
 
 function preload() {
     this.load.image('bullet', 'assets/invaders/bullet.png');
     this.load.image('enemy-bullet', 'assets/invaders/enemy-bullet.png');
-    this.load.image('explode', 'assets/invaders/explode.png');
+    this.load.spritesheet('explode', 'assets/invaders/explode2.png', {
+        frameWidth: 70,
+        frameHeight: 70
+    });
     this.load.image('invader', 'assets/invaders/invader.png');
     this.load.image('player', 'assets/invaders/player.png');
     this.load.image('starfield', 'assets/invaders/starfield.png');
@@ -46,19 +51,37 @@ function create() {
     GamePlayer = new Player(this);
     GameBullet = new Bullet(this);
     bulletGroup = this.add.group();
-    invadersGroup = this.add.group();
+    invadersGroup = this.physics.add.group();
+
+    this.anims.create({
+        key: 'explode',
+        frames: this.anims.generateFrameNumbers('explode', { start: 0, end: 15 }),
+        frameRate: 25,
+        repeat: 0,
+        hideOnComplete: true
+    });
 
     this.add.image(512, 384, "starfield");
     GameEnemies.addEnemies(4, 13);
     GamePlayer.addPlayer();
 
-    this.input.keyboard.on('keydown_SPACE', () => {
-        GameBullet.shootBullet();
-    });
+    spaceBar = this.input.keyboard.addKey('SPACE');
 }
 
 function update() {
     let speed = 300;
+    const entry = invadersGroup.children.entries;
+
+    if (entry.length > 0) {
+        const velocity = entry[0].body.velocity.y;
+        const entryY = entry[0].y;
+        if (velocity > 0 && entryY >= 100) {
+            invadersGroup.setVelocityY(0);
+            invadersGroup.children.iterate((invader) => {
+                invader.setVelocityX(250);
+            });
+        }
+    }
 
     if (!currentPlayer || !currentPlayer.body) return;
 
@@ -80,5 +103,7 @@ function update() {
     if (!cursors.up.isDown && !cursors.down.isDown) {
         currentPlayer.setVelocityY(0);
     }
-
+    if (spaceBar.isDown) {
+        GameBullet.shootBullet();
+    }
 }
