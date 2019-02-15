@@ -23,8 +23,27 @@ class Enemies {
         }
     }
 
-    attackPlayer() {
+    attackPlayer(invader) {
+        if (this.invaders.time.now > enemyBulletTime) {
+            const bullet = this.invaders.physics.add.sprite(invader.x, invader.y, "enemy-bullet");
+            bullet.setCollideWorldBounds(false);
+            bullet.setVelocityY(500);
+            enemyBulletGroup.add(bullet);
 
+            this.invaders.physics.add.collider(bullet, currentPlayer, (bullet, player) => {
+                const explosion = this.invaders.physics.add.sprite(player.x, player.y, 'explode');
+
+                explosion.anims.play('explode', true);
+
+                explosion.on("animationcomplete", () => {
+                    explosion.destroy();
+                });
+
+                player.destroy();
+                bullet.destroy();
+
+            });
+            enemyBulletTime = this.invaders.time.now + 250;
+        }
     }
-
 }

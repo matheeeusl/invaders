@@ -19,13 +19,17 @@ const config = {
 const game = new Phaser.Game(config);
 let currentPlayer;
 let bulletGroup;
+let enemyBulletGroup;
 let invadersGroup;
 let GameEnemies;
 let cursors;
 let GamePlayer;
 let GameBullet;
 let bulletTime = 0;
+let enemyBulletTime = 0;
 let spaceBar;
+let GameScore = 0;
+let scoreText;
 
 function preload() {
     this.load.image('bullet', 'assets/invaders/bullet.png');
@@ -51,6 +55,7 @@ function create() {
     GamePlayer = new Player(this);
     GameBullet = new Bullet(this);
     bulletGroup = this.add.group();
+    enemyBulletGroup = this.add.group();
     invadersGroup = this.physics.add.group();
 
     this.anims.create({
@@ -66,6 +71,7 @@ function create() {
     GamePlayer.addPlayer();
 
     spaceBar = this.input.keyboard.addKey('SPACE');
+    scoreText = this.add.text(16, 16, 'Score: 0', { fontSize: '32px', fill: '#fff' });
 }
 
 function update() {
@@ -81,6 +87,8 @@ function update() {
                 invader.setVelocityX(250);
             });
         }
+        const rng = Phaser.Math.Between(0, invadersGroup.children.entries.length - 1);
+        GameEnemies.attackPlayer(invadersGroup.children.entries[rng]);
     }
 
     if (!currentPlayer || !currentPlayer.body) return;
