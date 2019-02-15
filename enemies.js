@@ -27,7 +27,7 @@ class Enemies {
         if (this.invaders.time.now > enemyBulletTime) {
             const bullet = this.invaders.physics.add.sprite(invader.x, invader.y, "enemy-bullet");
             bullet.setCollideWorldBounds(false);
-            bullet.setVelocityY(500);
+            this.invaders.physics.moveTo(bullet, currentPlayer.x, currentPlayer.y, 300);
             enemyBulletGroup.add(bullet);
 
             this.invaders.physics.add.collider(bullet, currentPlayer, (bullet, player) => {
@@ -43,7 +43,7 @@ class Enemies {
                 bullet.destroy();
 
             });
-            enemyBulletTime = this.invaders.time.now + 250;
+            enemyBulletTime = this.invaders.time.now + 1000;
         }
     }
 }
