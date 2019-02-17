@@ -78,6 +78,10 @@ function update() {
     let speed = 300;
     const entry = invadersGroup.children.entries;
 
+    if(!entry.length){
+        GameEnemies.nextLevelEnemies();
+    }
+    
     if (entry.length > 0) {
         const velocity = entry[0].body.velocity.y;
         const entryY = entry[0].y;

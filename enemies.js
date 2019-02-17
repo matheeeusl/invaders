@@ -46,4 +46,19 @@ class Enemies {
             enemyBulletTime = this.invaders.time.now + 1000;
         }
     }
+
+    nextLevelEnemies(){
+        const randomInt1 = this.getRandomIntInclusive(1,10);
+        const randomInt2 = this.getRandomIntInclusive(1,10);
+        const lines = randomInt1 <= randomInt2 ? randomInt1 : randomInt2;
+        const columns = randomInt1 > randomInt2 ? randomInt1 : randomInt2;
+
+        this.addEnemies(lines, columns);
+    }
+    
+    getRandomIntInclusive(min, max) {
+        const minimum = Math.ceil(min);
+        const maximum = Math.floor(max);
+        return Math.floor(Math.random() * (maximum - minimum + 1)) + minimum;
+    }
 }
