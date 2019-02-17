@@ -2,6 +2,7 @@ class Enemies {
 
     constructor(invaders) {
         this.invaders = invaders;
+        this.enemyType = "enemy";
     }
 
     addEnemies(quantidadeLinhas, quantidadeColunas) {
@@ -14,7 +15,7 @@ class Enemies {
                 distanciaX = 300;
             }
 
-            const invader = invadersGroup.create(distanciaX, distanciaY, "enemy");
+            const invader = invadersGroup.create(distanciaX, distanciaY, this.enemyType);
             invader.setVelocityY(100);
             invader.setBounce(1);
             invader.setCollideWorldBounds(true);
@@ -24,8 +25,9 @@ class Enemies {
     }
 
     attackPlayer(invader) {
+        let bulletType = this.enemyType + "-bullet"
         if (this.invaders.time.now > enemyBulletTime) {
-            const bullet = this.invaders.physics.add.sprite(invader.x, invader.y, "enemy-bullet");
+            const bullet = this.invaders.physics.add.sprite(invader.x, invader.y, bulletType);
             bullet.setCollideWorldBounds(false);
             this.invaders.physics.moveTo(bullet, currentPlayer.x, currentPlayer.y, 300);
             enemyBulletGroup.add(bullet);
@@ -47,11 +49,10 @@ class Enemies {
         }
     }
 
-    nextLevelEnemies(){
-        const randomInt1 = this.getRandomIntInclusive(1,10);
-        const randomInt2 = this.getRandomIntInclusive(1,10);
-        const lines = randomInt1 <= randomInt2 ? randomInt1 : randomInt2;
-        const columns = randomInt1 > randomInt2 ? randomInt1 : randomInt2;
+    noEnemiesHandler(){
+        const lines = this.getRandomIntInclusive(1,10);
+        const columns = this.getRandomIntInclusive(1,10);
+        this.enemyType = lines % 2 === 0 ? "invader" : "enemy";
 
         this.addEnemies(lines, columns);
     }
