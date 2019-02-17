@@ -83,8 +83,7 @@ function update() {
     const entry = invadersGroup.children.entries;
 
     if(!entry.length){
-        enemyType = GameEnemies.noEnemiesHandler();
-        
+        GameEnemies.noEnemiesHandler();
     }
 
     if (entry.length > 0) {
