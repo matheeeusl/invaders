@@ -34,11 +34,15 @@ let scoreText;
 function preload() {
     this.load.image('bullet', 'assets/invaders/bullet.png');
     this.load.image('enemy-bullet', 'assets/invaders/enemy-bullet.png');
+    this.load.image('invader-bullet', 'assets/invaders/enemy-bullet2.png');
     this.load.spritesheet('explode', 'assets/invaders/explode2.png', {
         frameWidth: 70,
         frameHeight: 70
     });
-    this.load.image('invader', 'assets/invaders/invader.png');
+    this.load.spritesheet('invader', 'assets/invaders/invader.png',{
+        frameWidth: 16,
+        frameHeight: 16
+    });
     this.load.image('player', 'assets/invaders/player.png');
     this.load.image('starfield', 'assets/invaders/starfield.png');
     this.load.spritesheet('enemy',
@@ -67,7 +71,7 @@ function create() {
     });
 
     this.add.image(512, 384, "starfield");
-    GameEnemies.addEnemies(4, 13);
+    GameEnemies.addEnemies(2, 2);
     GamePlayer.addPlayer();
 
     spaceBar = this.input.keyboard.addKey('SPACE');
@@ -77,6 +81,10 @@ function create() {
 function update() {
     let speed = 300;
     const entry = invadersGroup.children.entries;
+
+    if(!entry.length){
+        GameEnemies.noEnemiesHandler();
+    }
 
     if (entry.length > 0) {
         const velocity = entry[0].body.velocity.y;
