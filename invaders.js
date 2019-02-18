@@ -30,6 +30,9 @@ let enemyBulletTime = 0;
 let spaceBar;
 let GameScore = 0;
 let scoreText;
+let GameLevel = 1;
+let levelText;
+let msgText;
 
 function preload() {
     this.load.image('bullet', 'assets/invaders/bullet.png');
@@ -39,7 +42,7 @@ function preload() {
         frameWidth: 70,
         frameHeight: 70
     });
-    this.load.spritesheet('invader', 'assets/invaders/invader.png',{
+    this.load.spritesheet('invader', 'assets/invaders/invader.png', {
         frameWidth: 16,
         frameHeight: 16
     });
@@ -71,28 +74,38 @@ function create() {
     });
 
     this.add.image(512, 384, "starfield");
-    GameEnemies.addEnemies(2, 2);
+    GameEnemies.noEnemiesHandler();
     GamePlayer.addPlayer();
 
     spaceBar = this.input.keyboard.addKey('SPACE');
     scoreText = this.add.text(16, 16, 'Score: 0', { fontSize: '32px', fill: '#fff' });
+    msgText = this.add.text(440, 300, '', { fontSize: '32px', fill: '#fff' });
+    levelText = this.add.text(16, 48, 'Level ' + GameLevel, { fontSize: '32px', fill: '#fff' });
 }
 
 function update() {
     let speed = 300;
     const entry = invadersGroup.children.entries;
+    if (!entry.length) {
+        GameLevel++;
+        if (GameLevel > 100) {
+            this.physics.pause();
+            msgText.setText('YOU WON!');
+            gameOver = true;
 
-    if(!entry.length){
-        GameEnemies.noEnemiesHandler();
+        } else {
+            levelText.setText('Level: ' + GameLevel);
+            GameEnemies.noEnemiesHandler();
+        }
     }
 
     if (entry.length > 0) {
-        const velocity = entry[0].body.velocity.y;
-        const entryY = entry[0].y;
-        if (velocity > 0 && entryY >= 100) {
+        const velocity = entry[entry.length - 1].body.velocity.y;
+        const entryY = entry[entry.length - 1].y;
+        if (velocity > 0 && entryY >= 150) {
             invadersGroup.setVelocityY(0);
             invadersGroup.children.iterate((invader) => {
-                invader.setVelocityX(250);
+                invader.setVelocityX(250 + (2 * GameLevel));
             });
         }
         const rng = Phaser.Math.Between(0, invadersGroup.children.entries.length - 1);
@@ -107,17 +120,8 @@ function update() {
     if (cursors.right.isDown) {
         currentPlayer.setVelocityX(speed);
     }
-    if (cursors.up.isDown) {
-        currentPlayer.setVelocityY(-(speed));
-    }
-    if (cursors.down.isDown) {
-        currentPlayer.setVelocityY(speed);
-    }
     if (!cursors.left.isDown && !cursors.right.isDown) {
         currentPlayer.setVelocityX(0);
-    }
-    if (!cursors.up.isDown && !cursors.down.isDown) {
-        currentPlayer.setVelocityY(0);
     }
     if (spaceBar.isDown) {
         GameBullet.shootBullet();

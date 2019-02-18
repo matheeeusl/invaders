@@ -8,11 +8,13 @@ class Enemies {
     addEnemies(quantidadeLinhas, quantidadeColunas) {
         let distanciaX = 300;
         let distanciaY = 0;
+        let contadorColuna = 1;
         for (let index = 0; index < quantidadeLinhas * quantidadeColunas; index++) {
 
             if (index % quantidadeColunas === 0) {
-                distanciaY = (index * 3);
+                distanciaY = (contadorColuna * 32);
                 distanciaX = 300;
+                contadorColuna++;
             }
 
             const invader = invadersGroup.create(distanciaX, distanciaY, this.enemyType);
@@ -29,7 +31,7 @@ class Enemies {
         if (this.invaders.time.now > enemyBulletTime) {
             const bullet = this.invaders.physics.add.sprite(invader.x, invader.y, bulletType);
             bullet.setCollideWorldBounds(false);
-            this.invaders.physics.moveTo(bullet, currentPlayer.x, currentPlayer.y, 300);
+            this.invaders.physics.moveTo(bullet, currentPlayer.x, currentPlayer.y, 300 + (10 * (Math.ceil(GameLevel / 5))));
             enemyBulletGroup.add(bullet);
 
             this.invaders.physics.add.collider(bullet, currentPlayer, (bullet, player) => {
@@ -45,18 +47,16 @@ class Enemies {
                 bullet.destroy();
 
             });
-            enemyBulletTime = this.invaders.time.now + 1000;
+            enemyBulletTime = this.invaders.time.now + (500 - (10 * (Math.ceil(GameLevel / 5) - 1)));
         }
     }
 
-    noEnemiesHandler(){
-        const lines = this.getRandomIntInclusive(1,10);
-        const columns = this.getRandomIntInclusive(1,10);
-        this.enemyType = lines % 2 === 0 ? "invader" : "enemy";
+    noEnemiesHandler() {
+        this.enemyType = GameLevel % 2 === 0 ? "invader" : "enemy";
 
-        this.addEnemies(lines, columns);
+        this.addEnemies(Math.ceil(GameLevel / 10), 3 + Math.ceil(GameLevel / 5));
     }
-    
+
     getRandomIntInclusive(min, max) {
         const minimum = Math.ceil(min);
         const maximum = Math.floor(max);
