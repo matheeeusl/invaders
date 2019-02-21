@@ -6,20 +6,24 @@ class Enemies {
     }
 
     addEnemies(quantidadeLinhas, quantidadeColunas) {
-        let distanciaX = 300;
+        const randomX = this.getRandomIntInclusive(200, 500);
+        let distanciaX = randomX;
         let distanciaY = 0;
         let contadorColuna = 1;
         for (let index = 0; index < quantidadeLinhas * quantidadeColunas; index++) {
 
             if (index % quantidadeColunas === 0) {
                 distanciaY = (contadorColuna * 32);
-                distanciaX = 300;
+                distanciaX = randomX;
                 contadorColuna++;
             }
 
             const invader = invadersGroup.create(distanciaX, distanciaY, this.enemyType);
             invader.setVelocityY(100);
             invader.setBounce(1);
+            if (this.enemyType.includes("boss")) {
+                invader.setDisplaySize(200, 200);
+            }
             invader.setCollideWorldBounds(true);
 
             distanciaX += 32;
@@ -27,34 +31,52 @@ class Enemies {
     }
 
     attackPlayer(invader) {
-        let bulletType = this.enemyType + "-bullet"
-        if (this.invaders.time.now > enemyBulletTime) {
-            const bullet = this.invaders.physics.add.sprite(invader.x, invader.y, bulletType);
-            bullet.setCollideWorldBounds(false);
-            this.invaders.physics.moveTo(bullet, currentPlayer.x, currentPlayer.y, 300 + (10 * (Math.ceil(GameLevel / 5))));
-            enemyBulletGroup.add(bullet);
+        let bulletType = this.enemyType + "-bullet";
 
-            this.invaders.physics.add.collider(bullet, currentPlayer, (bullet, player) => {
-                const explosion = this.invaders.physics.add.sprite(player.x, player.y, 'explode');
+        let bullet = this.invaders.physics.add.sprite(invader.x, invader.y, bulletType);
+        //bullet.setCollideWorldBounds(false);
 
-                explosion.anims.play('explode', true);
+        bullet.body.setCollideWorldBounds(true);
+        bullet.body.onWorldBounds = true;
 
-                explosion.on("animationcomplete", () => {
-                    explosion.destroy();
-                });
+        this.invaders.physics.moveTo(bullet, currentPlayer.x, currentPlayer.y, 300 + (5 * Math.ceil(GameLevel / 60)));
+        enemyBulletGroup.add(bullet);
 
-                player.destroy();
-                bullet.destroy();
+        this.invaders.physics.add.collider(bullet, currentPlayer, (bullet, player) => {
+            const explosion = this.invaders.physics.add.sprite(player.x, player.y - 30, 'big-explosion');
 
+            explosion.anims.play('big-explosion', true);
+
+            explosion.on("animationcomplete", () => {
+                explosion.destroy();
+                if (playerLifes > 0) {
+                    playerLifes--;
+                    GamePlayer.addPlayer();
+                    lifeText.setText('Lifes: ' + playerLifes);
+                } else {
+                    this.invaders.physics.pause();
+                    msgText.setText('YOU LOST!\nClick to Restart.');
+                    this.invaders.gameOver = true;
+                }
             });
-            enemyBulletTime = this.invaders.time.now + (500 - (10 * (Math.ceil(GameLevel / 5) - 1)));
-        }
+
+            player.destroy();
+            bullet.destroy();
+        });
     }
 
     noEnemiesHandler() {
+        let width = 10 + Math.ceil(GameLevel / 5);
+        let height = Math.ceil(GameLevel / 15);
         this.enemyType = GameLevel % 2 === 0 ? "invader" : "enemy";
 
-        this.addEnemies(Math.ceil(GameLevel / 10), 3 + Math.ceil(GameLevel / 5));
+        if (GameLevel % 10 === 0) {
+            this.enemyType = "boss-" + String(GameLevel / 10);
+            height = 1;
+            width = 1;
+        }
+
+        this.addEnemies(height, width);
     }
 
     getRandomIntInclusive(min, max) {

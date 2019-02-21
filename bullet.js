@@ -26,7 +26,7 @@ class Bullet {
                 GameScore += 10;
                 scoreText.setText('Score: ' + GameScore);
             });
-            bulletTime = this.invaders.time.now + 250;
+            bulletTime = this.invaders.time.now + 300;
         }
 
     }
