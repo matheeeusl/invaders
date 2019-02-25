@@ -11,7 +11,7 @@ class Bullet {
             bullet.setVelocityY(-1000);
             bulletGroup.add(bullet);
 
-            this.invaders.physics.add.collider(bullet, invadersGroup, (bullet, invader) => {
+            this.invaders.physics.add.overlap(bullet, invadersGroup, (bullet, invader) => {
                 const explosion = this.invaders.physics.add.sprite(invader.x, invader.y, 'explode');
 
                 explosion.anims.play('explode', true);
@@ -20,10 +20,19 @@ class Bullet {
                     explosion.destroy();
                 });
 
-                invader.destroy();
+                if (invader.texture.key.includes("boss") && bossLifes > 0) {
+                    bossLifes--;
+                    if (bossLifes === 0) {
+                        invader.destroy();
+                        GameScore += 1000;
+                    }
+                } else {
+                    invader.destroy();
+                    GameScore += 10;
+                }
+
                 bullet.destroy();
 
-                GameScore += 10;
                 scoreText.setText('Score: ' + GameScore);
             });
             bulletTime = this.invaders.time.now + 300;

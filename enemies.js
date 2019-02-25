@@ -6,7 +6,7 @@ class Enemies {
     }
 
     addEnemies(quantidadeLinhas, quantidadeColunas) {
-        const randomX = this.getRandomIntInclusive(200, 500);
+        const randomX = this.getRandomIntInclusive(200, 1000);
         let distanciaX = randomX;
         let distanciaY = 0;
         let contadorColuna = 1;
@@ -19,11 +19,14 @@ class Enemies {
             }
 
             const invader = invadersGroup.create(distanciaX, distanciaY, this.enemyType);
-            invader.setVelocityY(100);
-            invader.setBounce(1);
+
             if (this.enemyType.includes("boss")) {
                 invader.setDisplaySize(200, 200);
+                invader.setVelocityY(200);
+            } else {
+                invader.setVelocityY(100);
             }
+            invader.setBounce(1);
             invader.setCollideWorldBounds(true);
 
             distanciaX += 32;
@@ -32,14 +35,12 @@ class Enemies {
 
     attackPlayer(invader) {
         let bulletType = this.enemyType + "-bullet";
-
         let bullet = this.invaders.physics.add.sprite(invader.x, invader.y, bulletType);
-        //bullet.setCollideWorldBounds(false);
-
+        const velocity = this.enemyType.includes("boss") ? 10 * Math.ceil(GameLevel / 10) : 5 * Math.ceil(GameLevel / 60);
         bullet.body.setCollideWorldBounds(true);
         bullet.body.onWorldBounds = true;
 
-        this.invaders.physics.moveTo(bullet, currentPlayer.x, currentPlayer.y, 300 + (5 * Math.ceil(GameLevel / 60)));
+        this.invaders.physics.moveTo(bullet, currentPlayer.x, currentPlayer.y, 300 + (velocity));
         enemyBulletGroup.add(bullet);
 
         this.invaders.physics.add.collider(bullet, currentPlayer, (bullet, player) => {

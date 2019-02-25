@@ -5,7 +5,7 @@ class Player {
     }
 
     addPlayer() {
-        currentPlayer = this.invaders.physics.add.sprite(512, 600, 'player');
+        currentPlayer = this.invaders.physics.add.sprite(750, 600, 'player');
         currentPlayer.setCollideWorldBounds(true);
 
         this.invaders.physics.add.collider(currentPlayer, invadersGroup, (player, invader) => {
@@ -26,7 +26,21 @@ class Player {
                 }
             });
 
-            invader.destroy();
+            if (invader.texture.key.includes("boss") && bossLifes > 0) {
+                bossLifes--;
+                if (bossLifes === 0) {
+                    invader.destroy();
+                    GameScore += 1000;
+                }
+            } else {
+                invader.destroy();
+                GameScore += 10;
+            }
+
+            bullet.destroy();
+
+            scoreText.setText('Score: ' + GameScore);
+
             player.destroy();
 
         });

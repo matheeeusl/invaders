@@ -1,6 +1,6 @@
 const config = {
     type: Phaser.AUTO,
-    width: 1024,
+    width: 1500,
     height: 700,
     physics: {
         default: 'arcade',
@@ -21,7 +21,8 @@ const game = new Phaser.Game(config);
 let playerLifes = 3;
 let bombCounter = 3;
 let GameScore = 0;
-let GameLevel = 99;
+let GameLevel = 9;
+let bossLifes;
 
 let bulletGroup;
 let currentPlayer;
@@ -44,6 +45,7 @@ let levelText;
 let bombText;
 let lifeText;
 let msgText;
+let spaceImage;
 
 function preload() {
     this.load.image('bullet', 'assets/invaders/bullets/red-bullet.png');
@@ -110,7 +112,18 @@ function preload() {
     });
 
     this.load.image('player', 'assets/invaders/player/player.png');
-    this.load.image('starfield', 'assets/invaders/skies/starfield.png');
+
+    this.load.image('space-1', 'assets/invaders/skies/space-1.png');
+    this.load.image('space-2', 'assets/invaders/skies/space-2.png');
+    this.load.image('space-3', 'assets/invaders/skies/space-3.png');
+    this.load.image('space-4', 'assets/invaders/skies/space-4.png');
+    this.load.image('space-5', 'assets/invaders/skies/space-5.png');
+    this.load.image('space-6', 'assets/invaders/skies/space-6.png');
+    this.load.image('space-7', 'assets/invaders/skies/space-7.png');
+    this.load.image('space-8', 'assets/invaders/skies/space-8.png');
+    this.load.image('space-9', 'assets/invaders/skies/space-9.png');
+    this.load.image('space-10', 'assets/invaders/skies/space-10.png');
+
     this.load.spritesheet('enemy',
         'assets/invaders/enemies/invader32x32x4.png', {
             frameWidth: 32,
@@ -153,7 +166,7 @@ function create() {
     });
 
     this.input.on('pointerdown', function(pointer) {
-        if (typeof currentPlayer.body === 'undefined') {
+        if (typeof currentPlayer.body === 'undefined' && playerLifes <= 0) {
             bombCounter = 3;
             GameLevel = 1;
             playerLifes = 3;
@@ -162,10 +175,10 @@ function create() {
     }, this);
 
     this.physics.world.on('worldbounds', function(body) {
-        body.destroy();
+        body.gameObject.destroy();
     }, this);
 
-    this.add.image(512, 384, "starfield");
+    spaceImage = this.add.image(750, 384, "space-1");
     GameEnemies.noEnemiesHandler();
     GamePlayer.addPlayer();
 
@@ -174,7 +187,7 @@ function create() {
 
     bombText = this.add.text(16, 568, 'Bombs: ' + bombCounter, { fontSize: '32px', fill: '#fff' });
     scoreText = this.add.text(16, 632, 'Score: 0', { fontSize: '32px', fill: '#fff' });
-    msgText = this.add.text(350, 300, '', { fontSize: '32px', fill: '#fff' });
+    msgText = this.add.text(500, 300, '', { fontSize: '32px', fill: '#fff' });
     levelText = this.add.text(16, 600, 'Level ' + GameLevel, { fontSize: '32px', fill: '#fff' });
     lifeText = this.add.text(16, 536, 'Lifes:  ' + playerLifes, { fontSize: '32px', fill: '#fff' });
 }
@@ -182,6 +195,7 @@ function create() {
 function update() {
     let speed = 300;
     const entry = invadersGroup.children.entries;
+    const isBoss = entry.length > 0 ? entry[0].texture.key.includes("boss") : false;
     if (!entry.length) {
         GameLevel++;
         if (GameLevel > 100) {
@@ -191,6 +205,12 @@ function update() {
 
         } else {
             levelText.setText('Level: ' + GameLevel);
+            if (GameLevel % 10 === 0) {
+                bossLifes = 100 * (GameLevel / 10);
+            }
+            if ((GameLevel - 1) % 10 === 0) {
+                spaceImage.setTexture(`space-${(GameLevel - 1)/10 + 1}`);
+            }
             GameEnemies.noEnemiesHandler();
         }
     }
@@ -198,7 +218,8 @@ function update() {
     if (entry.length > 0 && typeof currentPlayer.body !== 'undefined') {
         const velocity = entry[entry.length - 1].body.velocity.y;
         const entryY = entry[entry.length - 1].y;
-        if (velocity > 0 && entryY >= 150) {
+        const fireRate = isBoss ? 500 - (50 * (Math.ceil(GameLevel / 10))) : 1000 - (30 * (Math.ceil(GameLevel / 20) - 1));
+        if (velocity > 0 && entryY >= 200) {
             invadersGroup.setVelocityY(0);
             invadersGroup.children.iterate((invader) => {
                 invader.setVelocityX(250 + (2 * GameLevel));
@@ -209,7 +230,7 @@ function update() {
             invadersGroup.children.iterate((invader) => {
                 GameEnemies.attackPlayer(invader);
             });
-            enemyBulletTime = this.time.now + (1000 - (30 * (Math.ceil(GameLevel / 5) - 1)));
+            enemyBulletTime = this.time.now + (fireRate);
         }
     }
 
@@ -239,8 +260,17 @@ function update() {
     if (shiftBar.isDown) {
         if (this.time.now > powerRate && bombCounter > 0) {
             enemyBulletGroup.clear(true, true);
-            GameScore += 10 * invadersGroup.children.entries.length;
-            invadersGroup.clear(true, true);
+            GameScore += 10 * entry.length;
+
+            if (isBoss && bossLifes > 0) {
+                bossLifes -= 50;
+                if (bossLifes === 0) {
+                    invadersGroup.clear(true, true);
+                }
+            } else {
+                invadersGroup.clear(true, true);
+            }
+
             scoreText.setText('Score: ' + GameScore);
             bombCounter--;
             powerRate = this.time.now + 1000;
